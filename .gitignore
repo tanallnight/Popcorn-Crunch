@@ -23,3 +23,6 @@ _sandbox
 
 # Gradle Properties
 gradle.properties
+
+# Api Keys
+/app/src/main/java/com/tanmay/popcorncrunch/Keys.java
