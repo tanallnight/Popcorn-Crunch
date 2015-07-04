@@ -1,9 +1,5 @@
 package com.tanmay.popcorncrunch.adapters;
 
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +8,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 import com.tanmay.popcorncrunch.R;
 import com.tanmay.popcorncrunch.models.Movie;
 import com.tanmay.popcorncrunch.models.NetworkResponse;
@@ -23,8 +18,12 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
 
     private NetworkResponse response;
 
-    public MovieListAdapter(NetworkResponse response) {
-        this.response = response;
+    public void addData(NetworkResponse response) {
+        if (this.response == null) {
+            this.response = response;
+        } else {
+            this.response.getResults().addAll(response.getResults());
+        }
     }
 
     @Override
@@ -74,11 +73,11 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         return response.getResults().size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView poster;
         TextView title, year;
-        View textBack;
+        View parent;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -86,8 +85,15 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
             poster = (ImageView) itemView.findViewById(R.id.poster);
             title = (TextView) itemView.findViewById(R.id.title);
             year = (TextView) itemView.findViewById(R.id.year);
-            textBack = itemView.findViewById(R.id.text_back);
+            parent = itemView.findViewById(R.id.parent);
+            parent.setOnClickListener(this);
 
+        }
+
+        @Override
+        public void onClick(View v) {
+            int position = getAdapterPosition();
+            Movie movie = response.getResults().get(position);
         }
     }
 

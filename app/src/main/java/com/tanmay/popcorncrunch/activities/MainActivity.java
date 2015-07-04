@@ -4,9 +4,11 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import com.squareup.okhttp.Request;
 import com.tanmay.popcorncrunch.R;
+import com.tanmay.popcorncrunch.adapters.EndlessRecyclerOnScrollListener;
 import com.tanmay.popcorncrunch.adapters.MovieListAdapter;
 import com.tanmay.popcorncrunch.models.NetworkResponse;
 import com.tanmay.popcorncrunch.networking.TheMovieDBApi;
@@ -17,6 +19,7 @@ public class MainActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private MovieListAdapter movieListAdapter;
+    private int currentPage = 1;
 
     @Override
     protected boolean getDisplayHomeAsUpEnabled() {
@@ -33,14 +36,28 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false));
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
+        recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-        TheMovieDBApi.getInstance().getMovies(1, new TheMovieDBApi.NetworkResponseListener() {
+        populateList();
+        recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(gridLayoutManager) {
             @Override
-            public void onSuccess(NetworkResponse response) {
-                movieListAdapter = new MovieListAdapter(response);
-                recyclerView.setAdapter(movieListAdapter);
+            public void onLoadMore(int current_page) {
+                populateList();
+            }
+        });
+    }
+
+    private void populateList() {
+        TheMovieDBApi.getInstance().getMovies(currentPage, new TheMovieDBApi.NetworkResponseListener() {
+            @Override
+            public void onSuccess(final NetworkResponse response) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateList(response);
+                    }
+                });
             }
 
             @Override
@@ -48,5 +65,18 @@ public class MainActivity extends BaseActivity {
 
             }
         });
+    }
+
+    private void updateList(NetworkResponse response) {
+        if (movieListAdapter == null) {
+            movieListAdapter = new MovieListAdapter();
+        }
+        movieListAdapter.addData(response);
+        currentPage++;
+        if (recyclerView.getAdapter() == null) {
+            recyclerView.setAdapter(movieListAdapter);
+        } else {
+            movieListAdapter.notifyDataSetChanged();
+        }
     }
 }
