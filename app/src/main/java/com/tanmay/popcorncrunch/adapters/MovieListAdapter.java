@@ -1,5 +1,6 @@
 package com.tanmay.popcorncrunch.adapters;
 
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.tanmay.popcorncrunch.R;
+import com.tanmay.popcorncrunch.activities.DetailsActivity;
 import com.tanmay.popcorncrunch.models.Movie;
 import com.tanmay.popcorncrunch.models.NetworkResponse;
 
@@ -93,7 +95,9 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         @Override
         public void onClick(View v) {
             int position = getAdapterPosition();
-            Movie movie = response.getResults().get(position);
+            Intent intent = new Intent(v.getContext(), DetailsActivity.class);
+            intent.putExtra("ID", response.getResults().get(position).getId());
+            v.getContext().startActivity(intent);
         }
     }
 

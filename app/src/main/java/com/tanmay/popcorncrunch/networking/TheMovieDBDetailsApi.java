@@ -5,22 +5,23 @@ import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.tanmay.popcorncrunch.PopcornCrunchApplication;
-import com.tanmay.popcorncrunch.models.NetworkResponse;
+import com.tanmay.popcorncrunch.models.MovieDetails;
 
 import java.io.IOException;
 
-public class TheMovieDBApi {
+public class TheMovieDBDetailsApi {
 
-    private static final String TAG = "TheMovieDBApi";
+    private static final String TAG = "TheMovieDBDetailsApi";
 
     public interface NetworkResponseListener {
-        void onSuccess(NetworkResponse response);
+        void onSuccess(MovieDetails details);
+
         void onFailure(Request request, IOException e);
     }
 
-    private static TheMovieDBApi mInstance;
+    private static TheMovieDBDetailsApi mInstance;
 
-    private static final String BASE_API_URL = "http://api.themoviedb.org/3/discover/movie";
+    private static final String BASE_API_URL = "http://api.themoviedb.org/3/movie/";
 
     private static final Gson gson = new Gson();
 
@@ -28,19 +29,21 @@ public class TheMovieDBApi {
 
     private String apiKey;
 
-    public static TheMovieDBApi getInstance() {return mInstance;}
-
-    public static void create(String apiKey) {
-        mInstance = new TheMovieDBApi(apiKey);
+    public static TheMovieDBDetailsApi getInstance() {
+        return mInstance;
     }
 
-    private TheMovieDBApi(String apiKey) {
+    public static void create(String apiKey) {
+        mInstance = new TheMovieDBDetailsApi(apiKey);
+    }
+
+    private TheMovieDBDetailsApi(String apiKey) {
         this.apiKey = apiKey;
     }
 
-    public void getMovies(int page, NetworkResponseListener listener) {
+    public void getMovieDetails(int id, NetworkResponseListener listener){
         mListener = listener;
-        Request request = new Request.Builder().url(getUrl(page)).build();
+        Request request = new Request.Builder().url(getUrl(id)).build();
         PopcornCrunchApplication.getInstance().client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
@@ -49,13 +52,13 @@ public class TheMovieDBApi {
 
             @Override
             public void onResponse(Response response) throws IOException {
-                mListener.onSuccess(gson.fromJson(response.body().string(), NetworkResponse.class));
+                mListener.onSuccess(gson.fromJson(response.body().string(), MovieDetails.class));
             }
         });
     }
 
-    private String getUrl(int page) {
-        return BASE_API_URL + "?api_key=" + apiKey + "&page=" + page;
+    private String getUrl(int id) {
+        return BASE_API_URL + id + "?api_key=" + apiKey + "&append_to_response=credits,trailers";
     }
 
 }

@@ -5,6 +5,7 @@ import android.app.Application;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
 import com.tanmay.popcorncrunch.networking.TheMovieDBApi;
+import com.tanmay.popcorncrunch.networking.TheMovieDBDetailsApi;
 
 import java.io.IOException;
 
@@ -30,6 +31,7 @@ public class PopcornCrunchApplication extends Application {
             e.printStackTrace();
         }
 
+        TheMovieDBDetailsApi.create(Keys.THE_MOVIE_DB);
         TheMovieDBApi.create(Keys.THE_MOVIE_DB);
     }
 

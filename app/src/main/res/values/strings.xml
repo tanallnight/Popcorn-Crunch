@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Popcorn Crunch</string>
+    <string name="genre">Genre</string>
 </resources>
